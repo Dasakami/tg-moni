@@ -29,7 +29,7 @@ services:
     ports:
       - "8002:8000"
     volumes:
-      - ./bot:/app
+      - ./bot-moni:/app
 
   userbot:
     build: ./tg_userbot

@@ -1,12 +1,12 @@
 import asyncio
 from telethon import TelegramClient
-from config import api_id, api_hash
+from config import API_ID, API_HASH
 import database
 from handlers import admin, group
 import os
 session_name = os.environ.get("SESSION")
 # Сессия Telethon сохранится в session.session
-client = TelegramClient(session_name, api_id, api_hash)
+client = TelegramClient(session_name, API_ID, API_HASH)
 pool = None
 
 async def main():

@@ -44,7 +44,7 @@ services:
       DB_HOST: ${DB_HOST}
       API_ID: ${API_ID}
       API_HASH: ${API_HASH}
-      SESSION: ${SESSION}
+      SESSION: /app/session.session
     volumes:
       - ./tg_userbot:/app
 

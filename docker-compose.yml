@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: bot_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1908
+      POSTGRES_DB: botdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  bot:
+    build: ./bot
+    container_name: telegram_bot
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      TOKEN: ${TOKEN}
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./bot:/app
+
+  userbot:
+    build: ./tg_userbot
+    container_name: telegram_userbot
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_HOST: ${DB_HOST}
+      API_ID: ${API_ID}
+      API_HASH: ${API_HASH}
+      SESSION: ${SESSION}
+    volumes:
+      - ./tg_userbot:/app
+
+volumes:
+  pgdata:
+

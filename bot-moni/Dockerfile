@@ -8,7 +8,12 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     libssl-dev \
     gcc \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    cargo \
     && rm -rf /var/lib/apt/lists/*
+
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \

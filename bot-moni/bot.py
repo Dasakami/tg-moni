@@ -3,7 +3,6 @@ from aiogram import Bot, Dispatcher
 from config import TOKEN
 import database
 from handlers.admin import admin_router
-from handlers.group import group_router
 
 async def main():
     database.pool = await database.get_pool()  # создаём глобальный pool

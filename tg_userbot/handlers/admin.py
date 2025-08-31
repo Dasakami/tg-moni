@@ -53,6 +53,29 @@ def setup(client, pool):
         else:
             await event.reply("❌ Нельзя назначить себя админом. Уже есть админы.")
 
+    @client.on(events.NewMessage(pattern='/start'))
+    async def start(event):
+        sender_id = event.sender_id
+        if await database.is_admin(pool, sender_id):
+            # админ → показываем команды админа
+            text = (
+                "👑 Админ-панель:\n\n"
+                "/add <слово> — добавить ключ\n"
+                "/del <слово> — удалить ключ\n"
+                "/list — список ключей\n"
+                "/add_admin <id или @username> — добавить админа\n"
+                "/del_admin <id> — удалить админа\n"
+                "/admins — список админов"
+            )
+        else:
+            # обычный пользователь
+            text = (
+                "👋 Привет! У тебя нет доступа к админ-командам.\n"
+                "Чтобы стать админом, напиши /iamadmin (если админов ещё нет)."
+            )
+
+        await event.respond(text)
+
     @client.on(events.NewMessage(pattern='/add '))
     async def add_key(event):
         sender_id = event.sender_id

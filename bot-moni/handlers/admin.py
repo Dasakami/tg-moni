@@ -22,13 +22,15 @@ async def admin_start(message: types.Message):
     await message.answer(
         "✅ Админ-панель.\n"
         "Команды:\n"
-        "/add слово — добавить ключ\n"
         "/show — показать совпадения\n"
-        "/list — список ключей\n"
+        "/del_message [id] — удалить сообщение\n"
+        "/del_messages [id] BETWEEN [id] — удаление сообщений диапозоном\n"
+        "/done <id> — отметить сообщение как отвеченное\n"
+        "/show — показать совпадения\n"
         "/iamadmin — стать админом\n"
         "/add_admin <id или @username> — добавить админа\n"
         "/del_admin <id> — удалить админа\n"
-        "/admins — список админов"
+        "/admins — список админов",
     )
 
 @admin_router.message(Command("iamadmin"))

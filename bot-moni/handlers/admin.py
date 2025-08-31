@@ -18,7 +18,9 @@ filter_keyboard = InlineKeyboardMarkup(
 @admin_router.message(Command("start"))
 async def admin_start(message: types.Message):
     if not await database.is_admin(message.from_user.id):
-        return await message.answer("❌ У вас нет доступа!")
+        return await message.answer("Куда? У тебя нет доступа, хочешь доступ\n"
+                                    "Напиши ему - @dandasakami"
+                                    )
     await message.answer(
         "✅ Админ-панель.\n"
         "Команды:\n"

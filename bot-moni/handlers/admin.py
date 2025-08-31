@@ -142,3 +142,43 @@ async def list_admins(message: types.Message):
     for a in admins:
         text += f"ID: {a['user_id']} | {a['username']}\n"
     await message.answer(text)
+
+
+@admin_router.message(Command("del_message"))
+async def delete_message(message: types.Message):
+    if not await database.is_admin(message.from_user.id):
+        return await message.answer("❌ Нет доступа!")
+
+    parts = message.text.split()
+    if len(parts) < 2:
+        return await message.answer("⚠️ Используй: /del_message <id>")
+
+    try:
+        msg_id = int(parts[1])
+    except ValueError:
+        return await message.answer("❌ ID должно быть числом!")
+
+    deleted = await database.delete_message(msg_id)
+    if deleted:
+        await message.answer(f"🗑 Сообщение {msg_id} удалено.")
+    else:
+        await message.answer(f"❌ Сообщение {msg_id} не найдено.")
+
+
+@admin_router.message(Command("del_messages"))
+async def delete_messages(message: types.Message):
+    if not await database.is_admin(message.from_user.id):
+        return await message.answer("❌ Нет доступа!")
+
+    parts = message.text.split()
+    if len(parts) != 4 or parts[2].upper() != "BETWEEN":
+        return await message.answer("⚠️ Используй: /del_messages <от> BETWEEN <до>")
+
+    try:
+        start_id = int(parts[1])
+        end_id = int(parts[3])
+    except ValueError:
+        return await message.answer("❌ ID должны быть числами!")
+
+    deleted = await database.delete_messages_range(start_id, end_id)
+    await message.answer(f"🗑 Удалено {deleted} сообщений (ID {start_id}–{end_id}).")

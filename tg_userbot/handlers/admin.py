@@ -65,6 +65,22 @@ def setup(client, pool):
         await database.add_keyword(pool, parts[1])
         await event.reply(f"✅ Слово '{parts[1]}' добавлено.")
 
+    @client.on(events.NewMessage(pattern='/del '))
+    async def del_key(event):
+        sender_id = event.sender_id
+        if not await database.is_admin(pool, sender_id):
+            return
+        parts = event.text.split(maxsplit=1)
+        if len(parts) < 2:
+            return await event.reply('⚠️ Используй: /del <слово>')
+        
+        word = parts[1]
+        deleted =await database.delete_keyword(pool, word)
+        if deleted:
+            await event.reply(f"🗑 Слово '{word}' удалено.")
+        else:
+            await event.reply(f"❌ Слово '{word}' не найдено.")
+
     @client.on(events.NewMessage(pattern='/list'))
     async def list_keys(event):
         sender_id = event.sender_id

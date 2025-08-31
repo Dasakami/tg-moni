@@ -48,6 +48,22 @@ async def add_admin(user_id, username):
             user_id, username
         )
 
+async def delete_message(msg_id: int):
+    async with pool.acquire() as conn:
+        result = await conn.execute("DELETE FROM messages WHERE id = $1", msg_id)
+        return result.endswith("DELETE 1")
+
+
+async def delete_messages_range(start_id: int, end_id: int):
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM messages WHERE id BETWEEN $1 AND $2",
+            start_id, end_id
+        )
+        # result типа 'DELETE X' → достанем число
+        return int(result.split()[-1])
+
+
 async def is_admin(user_id):
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT 1 FROM admins WHERE user_id=$1", user_id)

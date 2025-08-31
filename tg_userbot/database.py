@@ -55,6 +55,12 @@ async def add_keyword(pool, word):
     async with pool.acquire() as conn:
         await conn.execute("INSERT INTO keywords(word) VALUES($1) ON CONFLICT DO NOTHING", word.lower())
 
+async def delete_keyword(pool, word):
+    async with pool.acquire() as conn:
+        result = await conn.execute("DELETE FROM keywords WHERE word = $1", word)
+        return result.endswith("DELETE 1")
+
+
 async def get_keywords(pool):
     async with pool.acquire() as conn:
         rows = await conn.fetch("SELECT word FROM keywords")

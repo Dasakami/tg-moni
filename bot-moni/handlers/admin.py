@@ -41,24 +41,17 @@ async def iam_admin(message: types.Message):
     username = message.from_user.username
     user_id = message.from_user.id
 
-    # Сначала проверяем: есть ли человек уже полноценный админ
     if await database.is_admin(user_id):
         return await message.answer("✅ Вы уже админ.")
 
-    # Проверяем: есть ли запись по username с user_id=0
-    if username:
-        await database.bind_admin_id(user_id, username)
+    # Пробуем обновить запись по username
+    updated = await database.bind_admin_id(user_id, username)
+    if updated:
         return await message.answer("🎉 Вы назначены админом!")
 
-    # Если это первый админ (никого нет в базе)
-    admins = await database.get_admins()
-    if not admins:
-        await database.add_admin(user_id, username or "Нет username")
-        return await message.answer("🎉 Вы назначены админом!")
-
-    # Если username нет и админы уже есть
-    await message.answer("❌ Не могу назначить вас админом, укажите username в Telegram.")
-
+    # Если записи по username нет — создаём нового админа
+    await database.add_admin(user_id, username or "Нет username")
+    await message.answer("🎉 Вы назначены админом!")
 
 
 @admin_router.message(Command("show"))

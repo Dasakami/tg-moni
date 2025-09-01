@@ -71,13 +71,16 @@ async def is_admin(user_id):
         row = await conn.fetchrow("SELECT 1 FROM admins WHERE user_id=$1", user_id)
         return row is not None
 
-# --- Привязка user_id к username для админов ---
+
 async def bind_admin_id(user_id: int, username: str):
     async with pool.acquire() as conn:
-        await conn.execute(
+        result = await conn.execute(
             "UPDATE admins SET user_id=$1 WHERE username=$2 AND user_id=0",
             user_id, username
         )
+        # result = 'UPDATE X' → True, если обновлено хотя бы 1
+        return int(result.split()[-1]) > 0
+
 
 
 async def get_admins():

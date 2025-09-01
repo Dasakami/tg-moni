@@ -74,6 +74,18 @@ async def save_message(pool, user_id, username, chat_title, message, chat_userna
             user_id, username, chat_title, chat_username, message
         )
 
+
+
+async def bind_admin_id(pool, user_id: int, username: str):
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "UPDATE admins SET user_id=$1 WHERE username=$2 AND user_id=0",
+            user_id, username
+        )
+        # возвращаем True если обновлено хотя бы одно поле
+        return int(result.split()[-1]) > 0
+
+
 async def get_messages(pool, limit=10):
     async with pool.acquire() as conn:
         return await conn.fetch("SELECT id, user_id, username, chat_title, chat_username, message, status FROM messages ORDER BY id DESC LIMIT $1", limit)

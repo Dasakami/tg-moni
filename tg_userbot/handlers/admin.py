@@ -41,17 +41,23 @@ def setup(client, pool):
 
     @client.on(events.NewMessage(pattern='/iamadmin'))
     async def iam_admin(event):
-        sender_id = event.sender_id
+        sender = await event.get_sender()
+        sender_id = sender.id
+        username = sender.username or "Нет username"
+
+    # Если уже админ
         if await database.is_admin(pool, sender_id):
             return await event.reply("✅ Вы уже админ.")
 
-        admins = await database.get_admins(pool)
-        if len(admins) == 0:
-            sender = await event.get_sender()
-            await database.add_admin(pool, sender_id, sender.username or "Нет username")
-            await event.reply("🎉 Вы назначены админом!")
-        else:
-            await event.reply("❌ Нельзя назначить себя админом. Уже есть админы.")
+    # Попытка обновить запись username-only (bind_admin_id)
+        updated = await database.bind_admin_id(pool, sender_id, username)
+        if updated:
+            return await event.reply("🎉 Вы назначены админом!")
+
+    # Иначе создаём нового админа
+        await database.add_admin(pool, sender_id, username)
+        await event.reply("🎉 Вы назначены админом!")
+
 
     @client.on(events.NewMessage(pattern='/start'))
     async def start(event):

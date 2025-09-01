@@ -11,6 +11,7 @@ async def get_pool():
         host=DB_HOST
     )
 
+
 async def init_db():
     async with pool.acquire() as conn:
         # таблица админов
@@ -64,10 +65,20 @@ async def delete_messages_range(start_id: int, end_id: int):
         return int(result.split()[-1])
 
 
+
 async def is_admin(user_id):
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT 1 FROM admins WHERE user_id=$1", user_id)
         return row is not None
+
+# --- Привязка user_id к username для админов ---
+async def bind_admin_id(user_id: int, username: str):
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE admins SET user_id=$1 WHERE username=$2 AND user_id=0",
+            user_id, username
+        )
+
 
 async def get_admins():
     async with pool.acquire() as conn:

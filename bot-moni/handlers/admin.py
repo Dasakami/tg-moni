@@ -18,7 +18,7 @@ filter_keyboard = InlineKeyboardMarkup(
 @admin_router.message(Command("start"))
 async def admin_start(message: types.Message):
     if not await database.is_admin(message.from_user.id):
-        return await message.answer("Куда? У тебя нет доступа, хочешь доступ\n"
+        return await message.answer("Куда? У тебя нет доступа, хочешь доступ?\n"
                                     "Напиши ему - @dandasakami"
                                     )
     await message.answer(
@@ -35,13 +35,30 @@ async def admin_start(message: types.Message):
         "/admins — список админов",
     )
 
+
 @admin_router.message(Command("iamadmin"))
 async def iam_admin(message: types.Message):
-    if await database.is_admin(message.from_user.id):
+    username = message.from_user.username
+    user_id = message.from_user.id
+
+    # Сначала проверяем: есть ли человек уже полноценный админ
+    if await database.is_admin(user_id):
         return await message.answer("✅ Вы уже админ.")
-    if await database.get_admins == 0:
-        await database.add_admin(message.from_user.id, message.from_user.username or "Нет username")
-    await message.answer("🎉 Вы назначены админом!")
+
+    # Проверяем: есть ли запись по username с user_id=0
+    if username:
+        await database.bind_admin_id(user_id, username)
+        return await message.answer("🎉 Вы назначены админом!")
+
+    # Если это первый админ (никого нет в базе)
+    admins = await database.get_admins()
+    if not admins:
+        await database.add_admin(user_id, username or "Нет username")
+        return await message.answer("🎉 Вы назначены админом!")
+
+    # Если username нет и админы уже есть
+    await message.answer("❌ Не могу назначить вас админом, укажите username в Telegram.")
+
 
 
 @admin_router.message(Command("show"))

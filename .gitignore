@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+*.env
+
+tg_userbot/session.session

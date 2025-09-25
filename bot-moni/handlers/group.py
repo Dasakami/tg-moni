@@ -17,7 +17,7 @@ async def track_keywords(message: types.Message):
             user_id=message.from_user.id,
             username=message.from_user.username or "Нет username",
             chat_title=message.chat.title or "Личный чат",
-            chat_username=message.chat.username,  # <- тег группы
+            chat_username=message.chat.username,  
             message=message.text
         )
 

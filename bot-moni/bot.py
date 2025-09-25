@@ -5,8 +5,8 @@ import database
 from handlers.admin import admin_router
 
 async def main():
-    database.pool = await database.get_pool()  # создаём глобальный pool
-    await database.init_db()                    # создаём таблицы
+    database.pool = await database.get_pool()  
+    await database.init_db()                   
 
     bot = Bot(TOKEN)
     dp = Dispatcher()

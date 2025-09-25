@@ -1,7 +1,7 @@
 import asyncpg
 from config import DB_USER, DB_PASS, DB_NAME, DB_HOST
 
-pool = None  # глобальный пул
+pool = None  
 
 async def get_pool():
     return await asyncpg.create_pool(
@@ -41,7 +41,7 @@ async def init_db():
         )
         """)
 
-# --- Админы ---
+
 async def add_admin(user_id, username):
     async with pool.acquire() as conn:
         await conn.execute(
@@ -61,7 +61,6 @@ async def delete_messages_range(start_id: int, end_id: int):
             "DELETE FROM messages WHERE id BETWEEN $1 AND $2",
             start_id, end_id
         )
-        # result типа 'DELETE X' → достанем число
         return int(result.split()[-1])
 
 
@@ -78,7 +77,6 @@ async def bind_admin_id(user_id: int, username: str):
             "UPDATE admins SET user_id=$1 WHERE username=$2 AND user_id=0",
             user_id, username
         )
-        # result = 'UPDATE X' → True, если обновлено хотя бы 1
         return int(result.split()[-1]) > 0
 
 
@@ -91,7 +89,7 @@ async def remove_admin(user_id):
     async with pool.acquire() as conn:
         await conn.execute("DELETE FROM admins WHERE user_id=$1", user_id)
 
-# --- Ключевые слова ---
+
 async def add_keyword(word):
     async with pool.acquire() as conn:
         await conn.execute(

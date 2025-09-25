@@ -2,7 +2,6 @@ from telethon import events
 import database
 
 def setup(client, pool):
-    # Отслеживаем ключевые слова
     @client.on(events.NewMessage())
     async def track_keywords(event):
         if not event.text:
@@ -23,7 +22,6 @@ def setup(client, pool):
         found = [word for word in keywords if word in text]
 
         if found:
-            # Проверка на дубликат
             exists = await database.message_exists(pool, event.chat_id, event.id)
             if not exists:
                 await database.save_message(
@@ -37,7 +35,6 @@ def setup(client, pool):
                     chat_id=event.chat_id
                 )
 
-    # ------------------ Команды ------------------
 
     @client.on(events.NewMessage(pattern='/iamadmin'))
     async def iam_admin(event):
@@ -45,16 +42,14 @@ def setup(client, pool):
         sender_id = sender.id
         username = sender.username or "Нет username"
 
-    # Если уже админ
         if await database.is_admin(pool, sender_id):
             return await event.reply("✅ Вы уже админ.")
 
-    # Попытка обновить запись username-only (bind_admin_id)
         updated = await database.bind_admin_id(pool, sender_id, username)
         if updated:
             return await event.reply("🎉 Вы назначены админом!")
 
-    # Иначе создаём нового админа
+
         await database.add_admin(pool, sender_id, username)
         await event.reply("🎉 Вы назначены админом!")
 
@@ -63,7 +58,6 @@ def setup(client, pool):
     async def start(event):
         sender_id = event.sender_id
         if await database.is_admin(pool, sender_id):
-            # админ → показываем команды админа
             text = (
                 "👑 Админ-панель:\n\n"
                 "/add <слово> — добавить ключ\n"
@@ -74,7 +68,6 @@ def setup(client, pool):
                 "/admins — список админов"
             )
         else:
-            # обычный пользователь
             text = (
                 " У тебя с головой все нормально?\n"
                 "Болван, я не бот!"

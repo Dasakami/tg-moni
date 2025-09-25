@@ -3,8 +3,9 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import database
 
+MAX_LEN = 4000  
+
 admin_router = Router()
-# создаём пустую клавиатуру
 filter_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -44,12 +45,10 @@ async def iam_admin(message: types.Message):
     if await database.is_admin(user_id):
         return await message.answer("✅ Вы уже админ.")
 
-    # Пробуем обновить запись по username
     updated = await database.bind_admin_id(user_id, username)
     if updated:
         return await message.answer("🎉 Вы назначены админом!")
 
-    # Если записи по username нет — создаём нового админа
     await database.add_admin(user_id, username or "Нет username")
     await message.answer("🎉 Вы назначены админом!")
 
@@ -60,11 +59,11 @@ async def show_messages(message: types.Message):
         return
     await message.answer("Выберите фильтр:", reply_markup=filter_keyboard)
 
-MAX_LEN = 4000  # лимит Telegram
+
 
 @admin_router.callback_query(lambda c: c.data.startswith("filter_"))
 async def filter_messages(callback: types.CallbackQuery):
-    filter_type = callback.data.split("_")[1]  # all / unanswered / done
+    filter_type = callback.data.split("_")[1]  
 
     rows = await database.get_messages(100)
 
@@ -77,21 +76,20 @@ async def filter_messages(callback: types.CallbackQuery):
         await callback.message.edit_text("⚠️ Сообщений нет для выбранного фильтра")
         return
 
-    await callback.message.delete()  # удаляем сообщение с кнопками
+    await callback.message.delete() 
 
     for r in rows:
         chat_link = f"@{r['chat_username']}" if r['chat_username'] else r['chat_title']
         username_text = f"@{r['username']}" if r['username'] != "Нет username" else "Нет username"
 
         if r['username'] != "Нет username":
-        # Кнопка с кликабельной ссылкой на username
             keyboard = InlineKeyboardMarkup(
                 inline_keyboard=[
                     [InlineKeyboardButton(text="Открыть чат с пользователем", url=f"https://t.me/{r['username']}")]
             ]
         )
         else:
-            keyboard = None  # для пользователей без username кнопки нет
+            keyboard = None 
 
         text = (
         f"{r['message']}\n\n"
@@ -105,7 +103,7 @@ async def filter_messages(callback: types.CallbackQuery):
 
 
 
-    await callback.answer()  # убрать часики
+    await callback.answer()  
 
 @admin_router.message(Command("done"))
 async def mark_done(message: types.Message):

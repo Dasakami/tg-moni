@@ -32,7 +32,6 @@ async def init_db(pool):
         )
         """)
 
-# --- Админы ---
 async def add_admin(pool, user_id, username):
     async with pool.acquire() as conn:
         await conn.execute("INSERT INTO admins(user_id, username) VALUES($1,$2) ON CONFLICT DO NOTHING", user_id, username)
@@ -50,7 +49,6 @@ async def remove_admin(pool, user_id):
     async with pool.acquire() as conn:
         await conn.execute("DELETE FROM admins WHERE user_id=$1", user_id)
 
-# --- Ключевые слова ---
 async def add_keyword(pool, word):
     async with pool.acquire() as conn:
         await conn.execute("INSERT INTO keywords(word) VALUES($1) ON CONFLICT DO NOTHING", word.lower())
@@ -66,7 +64,7 @@ async def get_keywords(pool):
         rows = await conn.fetch("SELECT word FROM keywords")
         return [r["word"] for r in rows]
 
-# --- Сообщения ---
+
 async def save_message(pool, user_id, username, chat_title, message, chat_username=None):
     async with pool.acquire() as conn:
         await conn.execute(
@@ -82,7 +80,6 @@ async def bind_admin_id(pool, user_id: int, username: str):
             "UPDATE admins SET user_id=$1 WHERE username=$2 AND user_id=0",
             user_id, username
         )
-        # возвращаем True если обновлено хотя бы одно поле
         return int(result.split()[-1]) > 0
 
 
